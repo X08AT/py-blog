@@ -24,7 +24,8 @@ class PostDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(PostDetailView, self).get_context_data(**kwargs)
-        context['commentary_form'] = CommentaryForm()
+        if self.request.user.is_authenticated:
+            context['commentary_form'] = CommentaryForm()
         return context
 
     def post(self, request, *args, **kwargs):
