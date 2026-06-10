@@ -8,24 +8,28 @@ from blog.models import Post
 
 
 def index(request):
-    posts = Post.objects.annotate(comment_count=Count('commentaries')).order_by('-created_time')
+    posts = Post.objects.annotate(
+        comment_count=Count("commentaries")).order_by(
+        "-created_time"
+    )
     paginator = Paginator(posts, 5)
-    page_number = request.GET.get('page')
+    page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
-    context = {'page_obj': page_obj, 'post_list': page_obj}
-    return render(request, 'blog/index.html', context)
+    context = {"page_obj": page_obj, "post_list": page_obj}
+    return render(request, "blog/index.html", context)
 
 
 class PostDetailView(DetailView):
     model = Post
-    template_name = 'blog/post_detail.html'
+    template_name = "blog/post_detail.html"
+
     def get_queryset(self):
-        return Post.objects.prefetch_related('commentaries__user')
+        return Post.objects.prefetch_related("commentaries__user")
 
     def get_context_data(self, **kwargs):
         context = super(PostDetailView, self).get_context_data(**kwargs)
         if self.request.user.is_authenticated:
-            context['commentary_form'] = CommentaryForm()
+            context["commentary_form"] = CommentaryForm()
         return context
 
     def post(self, request, *args, **kwargs):
@@ -38,4 +42,4 @@ class PostDetailView(DetailView):
             comment.user = self.request.user
             comment.post = self.object
             comment.save()
-        return redirect('blog:post-detail', pk=self.object.pk)
+        return redirect("blog:post-detail", pk=self.object.pk)
